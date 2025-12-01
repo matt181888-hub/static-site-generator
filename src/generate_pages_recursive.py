@@ -2,7 +2,8 @@ from generate_page import *
 import os
 from pathlib import Path
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     print(f"Generating page from {dir_path_content} to {dest_dir_path} using {template_path}")
     all_files = os.listdir(dir_path_content)
     for file in all_files:
@@ -20,14 +21,16 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
             title = extract_title(markdown_content)
             new_template = template_content.replace("{{ Title }}", title)
             newer_template = new_template.replace("{{ Content }}", html_string)
+            newer_newer_template = newer_template.replace('href="/', f'href="{basepath}')
+            newest_template = newer_newer_template.replace('src="/', f'src="{basepath}')
 
             final_dir = os.path.join(dest_dir_path, str(html_file))
             to_be_written_to = os.path.dirname(final_dir)
             os.makedirs(to_be_written_to, exist_ok=True)
             
             with open(final_dir, 'w') as file:
-                file.write(newer_template)
+                file.write(newest_template)
         elif os.path.isdir(from_path):
             place = os.path.join(dest_dir_path, file)
-            generate_pages_recursive(from_path, template_path, place)
+            generate_pages_recursive(from_path, template_path, place, basepath)
     
